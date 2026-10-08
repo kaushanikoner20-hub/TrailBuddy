@@ -12,13 +12,16 @@ Open an issue describing the problem first, not just the solution. Keep the proj
 
 ## Improving prompts
 
-The prompt lives in `server/prompts/adventurePrompt.js`. If you change it, include a few before/after outputs from Gemma in your pull request, and keep the safety rules (no invented places, no safety claims about locations, no dangerous instructions).
+The prompt lives in `server/prompts/adventurePrompt.js`. If you change it, include a few before/after outputs from Gemma in your pull request (ideally for different moods), and keep the safety rules (no invented places, no safety claims about locations, no dangerous instructions, no screen use outdoors).
 
 ## Adding outdoor activities
 
-1. Add the value to `ACTIVITIES` in `server/validation.js`.
-2. Add a matching option in `client/src/components/AdventureForm.jsx`.
-3. Add or update a test in `server/validation.test.js`.
+1. Add the value to `ACTIVITIES` in `server/validation/adventureRequest.js`.
+2. Add guidance for it in `ACTIVITY_GUIDE` in `server/prompts/adventurePrompt.js`.
+3. Add a matching option in `client/src/options.js`.
+4. Add or update a test in `server/validation/adventureRequest.test.js`.
+
+Moods and difficulties follow the same pattern.
 
 ## Adding future model support
 

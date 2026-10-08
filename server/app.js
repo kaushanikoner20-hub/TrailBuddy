@@ -18,10 +18,10 @@ export function createApp() {
 
   app.use((err, _req, res, _next) => {
     if (err.type === 'entity.parse.failed') {
-      return res.status(400).json({ error: 'Request body must be valid JSON.', code: 'INVALID_INPUT' });
+      return res.status(400).json({ success: false, error: 'Request body must be valid JSON.', code: 'INVALID_INPUT' });
     }
     console.error('Unexpected error:', err);
-    return res.status(500).json({ error: 'Internal server error.', code: 'INTERNAL_ERROR' });
+    return res.status(500).json({ success: false, error: 'Internal server error.', code: 'INTERNAL_ERROR' });
   });
 
   return app;

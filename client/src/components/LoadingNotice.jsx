@@ -2,7 +2,11 @@ export default function LoadingNotice() {
   return (
     <div className="loading" role="status">
       <span className="spinner" aria-hidden="true" />
-      <p>Your local model is writing the adventure. The first run can take a minute while the model loads.</p>
+      <p>
+        Gemma is designing your adventure on this computer.
+        <br />
+        The first run can take a minute while the model loads.
+      </p>
     </div>
   );
 }

@@ -11,9 +11,10 @@ export class OllamaError extends Error {
 
 /**
  * Sends a single prompt to the local Ollama server and returns the generated text.
+ * `format` is optional: "json" or a JSON schema asks Ollama for structured output.
  * Throws OllamaError with a stable `code` for every expected failure mode.
  */
-export async function generate({ prompt, system }) {
+export async function generate({ prompt, system, format }) {
   const { ollamaBaseUrl, ollamaModel, generationTimeoutMs } = config;
 
   let response;
@@ -21,7 +22,7 @@ export async function generate({ prompt, system }) {
     response = await fetch(`${ollamaBaseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: ollamaModel, prompt, system, stream: false }),
+      body: JSON.stringify({ model: ollamaModel, prompt, system, format, stream: false }),
       signal: AbortSignal.timeout(generationTimeoutMs),
     });
   } catch (err) {

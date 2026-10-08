@@ -1,17 +1,39 @@
 import { useState } from 'react';
-import AdventureForm from '../components/AdventureForm.jsx';
-import AdventureCard from '../components/AdventureCard.jsx';
+import OptionStep from '../components/OptionStep.jsx';
+import ReadyStep from '../components/ReadyStep.jsx';
+import AdventureGuide from '../components/AdventureGuide.jsx';
 import ErrorNotice from '../components/ErrorNotice.jsx';
 import LoadingNotice from '../components/LoadingNotice.jsx';
+import { ACTIVITIES, DIFFICULTIES, DURATIONS, MOODS } from '../options.js';
 import { requestAdventure } from '../services/api.js';
 
-const INITIAL_VALUES = { activity: 'walking', duration: 30, difficulty: 'relaxed' };
+const QUESTIONS = [
+  { key: 'mood', question: 'How do you want to feel after the next few minutes?', options: MOODS },
+  { key: 'duration', question: 'How much time do you have?', options: DURATIONS },
+  {
+    key: 'activity',
+    question: 'What would you like to do?',
+    hint: 'Not sure? Pick "Surprise me".',
+    options: ACTIVITIES,
+  },
+  { key: 'difficulty', question: 'How adventurous?', options: DIFFICULTIES },
+];
+
+const EMPTY = { mood: null, duration: null, activity: null, difficulty: null };
 
 export default function Home() {
-  const [values, setValues] = useState(INITIAL_VALUES);
-  const [status, setStatus] = useState('idle');
+  const [values, setValues] = useState(EMPTY);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [status, setStatus] = useState('choosing');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+
+  const ready = stepIndex >= QUESTIONS.length;
+
+  function choose(key, value) {
+    setValues((current) => ({ ...current, [key]: value }));
+    setStepIndex((i) => i + 1);
+  }
 
   async function generate() {
     setStatus('loading');
@@ -25,18 +47,44 @@ export default function Home() {
     }
   }
 
+  function restart() {
+    setValues(EMPTY);
+    setStepIndex(0);
+    setResult(null);
+    setStatus('choosing');
+  }
+
+  function backToChoices() {
+    setStepIndex(QUESTIONS.length);
+    setStatus('choosing');
+  }
+
   return (
     <main className="page">
-      <header>
-        <h1>🌿 TrailBuddy</h1>
-        <p className="tagline">Get outside. Let local AI plan the adventure.</p>
-      </header>
+      <p className="wordmark">🌿 TrailBuddy</p>
 
-      <AdventureForm values={values} onChange={setValues} onSubmit={generate} loading={status === 'loading'} />
+      {status === 'choosing' && !ready && (
+        <OptionStep
+          step={stepIndex + 1}
+          total={QUESTIONS.length}
+          question={QUESTIONS[stepIndex].question}
+          hint={QUESTIONS[stepIndex].hint}
+          options={QUESTIONS[stepIndex].options}
+          selected={values[QUESTIONS[stepIndex].key]}
+          onSelect={(value) => choose(QUESTIONS[stepIndex].key, value)}
+          onBack={stepIndex > 0 ? () => setStepIndex((i) => i - 1) : null}
+        />
+      )}
+
+      {status === 'choosing' && ready && (
+        <ReadyStep values={values} onGo={generate} onBack={() => setStepIndex(QUESTIONS.length - 1)} />
+      )}
 
       {status === 'loading' && <LoadingNotice />}
-      {status === 'error' && <ErrorNotice message={error} onRetry={generate} />}
-      {status === 'done' && result && <AdventureCard adventure={result.adventure} model={result.model} />}
+      {status === 'error' && <ErrorNotice message={error} onRetry={generate} onChange={backToChoices} />}
+      {status === 'done' && result && (
+        <AdventureGuide adventure={result.adventure} model={result.model} onRestart={restart} />
+      )}
     </main>
   );
 }
