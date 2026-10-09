@@ -23,6 +23,15 @@ The point is not to say "walk for 30 minutes". Missions are small observation ch
 TrailBuddy is a small open-source project for the Hacktoberfest 2026 "Touch Grass" challenge.
 
 - **Stage 1:** foundation and local Gemma connection (done).
-- **Stage 2 (current):** personalized, structured, sensory adventures.
-- **Stage 3 (planned, not built):** the "Are you going out?" moment, closing scene, and Phone Away Mode.
-- **Stage 4 (planned):** local saving and offline use.
+- **Stage 2:** personalized, structured, sensory adventures.
+- **Stage 3 (current):** the "Are you going out?" commitment screen, the 3D closing scene, and Phone Away Mode.
+- **Stage 4 (planned, not built):** offline/PWA support.
+
+## The exit experience (Stage 3)
+
+> We wanted the final interaction with TrailBuddy to feel like an exit, not another screen to consume.
+
+- **The commitment screen** turns "start" into a deliberate moment: *Are you going out?* It is playful, never guilt-tripping, and anyone can say no and come back later.
+- **The bird** in the closing scene leaves the screen on purpose. The bird doesn't stay inside the app. Neither should you.
+- **Phone Away Mode** is deliberately small: one mission at a time, large text, a dark low-glare screen, and almost nothing to tap. The point is to read one instruction, put the phone away, and come back briefly.
+- TrailBuddy never claims you actually went outside or that your screen time went down. It can't know.

@@ -25,6 +25,7 @@ From the repository root:
 ```
 npm run install:all
 ```
+This installs the server dependencies and the client dependencies (including `three`, used by the closing scene).
 
 ## 5. Configure
 ```

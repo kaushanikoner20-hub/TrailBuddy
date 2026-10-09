@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { DIFFICULTIES, MISSION_ICONS, MOODS, labelFor } from '../options.js';
 
-export default function AdventureGuide({ adventure, model, onRestart }) {
-  const [startClicked, setStartClicked] = useState(false);
-
+export default function AdventureGuide({ adventure, model, onStart, onRestart }) {
   return (
     <article className="guide">
       <header className="guide-header">
@@ -32,16 +29,9 @@ export default function AdventureGuide({ adventure, model, onRestart }) {
       <p className="closing">{adventure.closing}</p>
       {adventure.phone_free && <p className="phone-free">🔒 Designed for phone-free time</p>}
 
-      <button type="button" className="primary" onClick={() => setStartClicked(true)}>
+      <button type="button" className="primary" onClick={onStart}>
         Start my adventure
       </button>
-
-      {startClicked && (
-        <p className="stage-note" role="status">
-          Phone Away Mode isn't built yet (planned for Stage 3). For now: read the missions once,
-          then close this tab and head outside.
-        </p>
-      )}
 
       <button type="button" className="link" onClick={onRestart}>Plan a different one</button>
       <p className="card-meta">Generated locally by {model}</p>

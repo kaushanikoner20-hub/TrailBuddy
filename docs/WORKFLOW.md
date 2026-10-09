@@ -27,26 +27,30 @@
 
 Internal validation details are logged on the server, not sent to the browser.
 
-## Planned Stage 3 flow (not implemented)
+## After the adventure: the Stage 3 journey
 
 ```
-Adventure generated
+Adventure generated (Stage 2, Gemma)
  ↓
-"ARE YOU GOING OUT?"
+START MY ADVENTURE
  ↓
-YES / NO
+"ARE YOU GOING OUT?"  ── NO ──► lighthearted reply ──► back to adventure, or "take me outside anyway"
+ ↓ YES
+3D closing scene: bird takes off, flies away
  ↓
-Playful "NO" button interaction
+"LET'S MEET OUTSIDE NOW" · "PUT YOUR PHONE AWAY"
  ↓
-3D outdoor closing scene
+Phone Away Mode: one mission at a time
  ↓
-Bird flies away
- ↓
-"LET'S MEET OUTSIDE NOW"
- ↓
-Phone Away Mode
- ↓
-User puts phone away
+WELCOME BACK 🌿 (optional reflection) → home
 ```
 
-Stage 2 prepares for this by producing a predictable adventure object that Stage 3 can display and step through. Nothing above exists yet.
+**Where the missions come from.** Phone Away Mode reads `adventure.missions` from the same object Stage 2 produced and validated. It shows one mission at a time and never calls the server or Gemma again, so entering it makes no AI request, and going back does not regenerate anything.
+
+**The commitment screen.** The *NO* button hops away from a **mouse** pointer up to four times (at most one hop per 450 ms), staying inside the viewport and away from the YES button, then returns home and behaves like a normal button. Touch and keyboard never trigger it, `prefers-reduced-motion` disables it, and the button is clickable at all times. Messages ("Nice try.", "The trees are waiting!", …) change once per hop.
+
+**The closing scene.** About 7 seconds: *arrival* (the bird sits on a branch), *takeoff* (wings unfold and flap, the bird leaves the branch), *message* (the headline fades in as it flies off), *settled*. "Skip animation" jumps to the end; "Replay" runs it again. There is no auto-advance: you continue when you're ready.
+
+**The optional timer.** It starts only when you press its button. Remaining time is computed from timestamps, so a suspended mobile browser can't make it drift, and pausing, resuming, and the pause overlay all freeze it correctly. When it ends it only says "Timer finished": it never completes the mission. Timer time is not evidence of time spent outside.
+
+**What is saved, and where.** The current adventure and your mission progress are kept in this browser's `localStorage` so a reload doesn't lose them; this is cleared when you finish or go home. A reflection is saved only if you press "Save in this browser". See [PRIVACY.md](PRIVACY.md).

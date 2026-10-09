@@ -3,39 +3,49 @@
 This file records only what has actually been run. Unchecked items have **not** been verified.
 
 ## Automated tests (`npm test`)
-Result in a sandbox without Ollama: 35 tests, 35 passed (Node 22).
+Result in a sandbox without Ollama or WebGL: 63 tests, 63 passed (Node 22). The count includes the 35 server tests from Stage 2.
 
-- [x] Request validation (`validation/adventureRequest.test.js`): valid input, normalization, every option accepted, Stage 1 words still accepted, missing mood, invalid mood/activity/difficulty, invalid durations, missing body.
-- [x] Model output validation (`validation/adventureSchema.test.js`): good output, non-objects, missing text, too few/many missions, bad mission fields, durations that don't fit the requested time.
-- [x] JSON extraction (`services/modelJson.test.js`): clean JSON, code fences, extra words, malformed output.
-- [x] Request handler against a stub Ollama server (`routes/adventureHandler.test.js`): 400 on bad input, 200 on valid output, fenced output, retry after malformed output, 502 after two unusable outputs, 503 model missing (not retried), 504 timeout, 503 Ollama down.
-- [x] Ollama service error handling (`ollama.test.js`).
+Stage 3 additions (28 client-side tests, pure logic only):
+- [x] Journey state machine (`state/journey.test.js`): happy path, ignored out-of-place actions, back from the commitment screen keeps the same adventure, exit keeps progress, restart-missions, finish.
+- [x] Persistence (`state/storage.test.js`): save/restore, progress restored to the resume screen, completion/home clear the session, corrupt or tampered data ignored, missing storage never throws, reflections trimmed/capped.
+- [x] Timer math (`phone-away/timerModel.test.js`): timestamp-based remaining time, pause/resume, clamping, formatting.
+- [x] Runaway button geometry (`commitment/runawayMath.test.js`): 300 random cases stay in the viewport, off the YES button, and away from the pointer.
+- [x] Scene choreography (`closing/sceneTimeline.test.js`): phases within 5–8 s, bird perched then airborne and receding, finite poses at any time, deterministic tree layout that keeps the view clear.
 
-**These tests use a stub server, not a real model.** They test our parsing, validation, and error handling, not the quality of Gemma's output.
+These tests found and fixed one real bug (`isAdventure` returned `null` instead of `false`).
 
-## Frontend
-- [x] Source bundles without errors (esbuild, sandbox).
-- [x] In a headless browser with a **stubbed API** (test-only; the app contains no fake responses): mood, duration, activity, and difficulty selection; the request body sent was `{"mood":"calm","duration":30,"activity":"walk","difficulty":"gentle"}`; loading state appears; the adventure renders as a field guide; the Stage 3 note appears when clicking Start; layout checked at desktop and 375 px mobile widths; "can't reach its server" error renders when no backend is present.
-- [ ] `npm run dev:client` under Vite on the developer machine
-- [ ] Back buttons and "Plan a different one" in a real browser session
-- [ ] Mobile layout on a real phone
+## Browser tests (sandbox, headless Chromium via Playwright, API stubbed)
+The Gemma API was **stubbed** for these tests (the app itself contains no fake responses). 16 checks, 16 passed:
+- [x] Commitment screen shows the exact copy and both buttons.
+- [x] Mouse: the NO button hops away at most four times, stays in the viewport, never overlaps YES, then returns home and is clickable.
+- [x] NO via keyboard shows the lighthearted reply; "Back to my adventure" returns to the same adventure with no second API request.
+- [x] Keyboard Tab reaches both buttons and focus does not make NO run.
+- [x] Touch (emulated): tapping NO works and the button never moves.
+- [x] Reduced motion: NO does not run away; the closing page settles immediately with no Replay.
+- [x] Closing page with the 3D chunk failing to load, and with WebGL disabled: the fallback shows the exact headline and the other three lines, there are no uncaught errors, and Continue reaches Phone Away Mode.
+- [x] Skip animation, including the regression where an early skip was undone by a timer (fixed).
+- [x] Phone Away Mode shows the stubbed adventure's missions one at a time; Done and Skip work; the completion screen shows "2 of 3 missions marked complete"; a reflection saves to `localStorage`; Back to home clears the session; exactly one API request was made in the whole journey.
+- [x] Pause overlay, Exit keeps progress, Resume is offered.
+- [x] Reload keeps the adventure, and in-progress missions show Resume without regenerating.
+- [x] Timer (fake clock): does not start by itself, shows 4:00 after one minute, pause freezes it, a long gap ends in "Timer finished", and the mission is not completed by the timer.
 
-## Environment (developer machine)
-- [x] Ollama installed and running; `gemma3:4b` installed (`ollama list`)
-- [x] Stage 1 real generation worked end to end (reported by the developer)
+These tests also found and fixed one real bug: the closing scene's `.closing` CSS class collided with the adventure guide's closing paragraph and blocked the Start button (scene class renamed to `.outro`).
 
-## End to end with real Gemma (Stage 2)
-- [ ] Gemma returns structured JSON that passes validation
-- [ ] Frontend renders a real Gemma adventure
-- [ ] Calm + 30 + Walk + Gentle
-- [ ] Energized + 45 + Explore + Moderate
-- [ ] Curious + 15 + Observe nature + Gentle
-- [ ] The three adventures are meaningfully different (mood visibly changes the missions)
-- [ ] Mission durations fit the requested time on real output (how often the retry triggers)
-- [ ] Wrong `OLLAMA_MODEL` shows the model-unavailable message
-- [ ] Stopping Ollama shows the can't-reach-model message
-- [ ] Invalid input rejected by the live API (400)
+## NOT verified: the 3D scene itself
+The sandbox has no Three.js library and no way to render WebGL, so:
+- [ ] The Three.js scene renders (trees, ground, sky, lighting)
+- [ ] The bird is visible on the branch, takes off, flaps, and flies away
+- [ ] The headline is readable over the real 3D scene on desktop and mobile
+- [ ] Performance on a modest laptop and phone
+- [ ] WebGL resources are released when leaving the scene
+- [ ] Context-loss handling
 
-## Other
+The scene code is written, but its rendering has only been reasoned about, not seen. Its timing and layout logic is unit tested; the Three.js calls are not.
+
+## Still to do on a real machine
+- [ ] `npm run install:all` and `npm run dev:client` under Vite with `three` installed
+- [ ] Full flow with real Gemma: generate, commitment, closing scene, Phone Away Mode, completion
+- [ ] Real touch device and real screen reader
+- [ ] Gemma's missions respect the new "closed eyes only while stationary" prompt line (spot-check several adventures)
 - [ ] `docker compose up --build`
 - [ ] GitHub Actions workflow

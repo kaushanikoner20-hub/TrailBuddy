@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import OptionStep from '../components/OptionStep.jsx';
 import ReadyStep from '../components/ReadyStep.jsx';
-import AdventureGuide from '../components/AdventureGuide.jsx';
 import ErrorNotice from '../components/ErrorNotice.jsx';
 import LoadingNotice from '../components/LoadingNotice.jsx';
 import { ACTIVITIES, DIFFICULTIES, DURATIONS, MOODS } from '../options.js';
@@ -21,11 +20,11 @@ const QUESTIONS = [
 
 const EMPTY = { mood: null, duration: null, activity: null, difficulty: null };
 
-export default function Home() {
+/** The personalization wizard. Calls onGenerated once Gemma has produced a valid adventure. */
+export default function Home({ onGenerated }) {
   const [values, setValues] = useState(EMPTY);
   const [stepIndex, setStepIndex] = useState(0);
-  const [status, setStatus] = useState('choosing');
-  const [result, setResult] = useState(null);
+  const [status, setStatus] = useState('choosing'); // choosing | loading | error
   const [error, setError] = useState('');
 
   const ready = stepIndex >= QUESTIONS.length;
@@ -39,19 +38,11 @@ export default function Home() {
     setStatus('loading');
     setError('');
     try {
-      setResult(await requestAdventure(values));
-      setStatus('done');
+      onGenerated(await requestAdventure(values));
     } catch (err) {
       setError(err.message);
       setStatus('error');
     }
-  }
-
-  function restart() {
-    setValues(EMPTY);
-    setStepIndex(0);
-    setResult(null);
-    setStatus('choosing');
   }
 
   function backToChoices() {
@@ -60,9 +51,7 @@ export default function Home() {
   }
 
   return (
-    <main className="page">
-      <p className="wordmark">🌿 TrailBuddy</p>
-
+    <>
       {status === 'choosing' && !ready && (
         <OptionStep
           step={stepIndex + 1}
@@ -82,9 +71,6 @@ export default function Home() {
 
       {status === 'loading' && <LoadingNotice />}
       {status === 'error' && <ErrorNotice message={error} onRetry={generate} onChange={backToChoices} />}
-      {status === 'done' && result && (
-        <AdventureGuide adventure={result.adventure} model={result.model} onRestart={restart} />
-      )}
-    </main>
+    </>
   );
 }

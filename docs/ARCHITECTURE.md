@@ -2,7 +2,7 @@
 
 ## Components
 
-**React (client/)** – A Vite + React single page. A one-question-per-screen wizard collects mood, time, activity, and difficulty, calls `POST /api/adventure`, and shows a loading state, the generated adventure as a field guide, or an error.
+**React (client/)** – A Vite + React single page. A one-question-per-screen wizard collects mood, time, activity, and difficulty and calls `POST /api/adventure`. The result then moves through the Stage 3 journey (below). Three.js is the only 3D dependency and is loaded lazily.
 
 **Node / Express (server/)** – A thin HTTP API.
 - `routes/adventure.js` is a thin Express route; `routes/adventureHandler.js` validates input and maps errors to HTTP responses.
@@ -43,3 +43,36 @@ parse + validate (retry once) ──► 502 if still unusable
 ```
 
 In development, Vite proxies `/api` to the backend on port 3001. When the client is built, Express serves `client/dist` itself.
+
+## Client structure (Stage 3)
+
+```
+client/src/
+├── App.jsx                       screen switch driven by the journey reducer
+├── state/
+│   ├── journey.js                the state machine (one `screen` value, allowed actions per screen)
+│   └── storage.js                localStorage: current session + optional reflections
+├── pages/Home.jsx                the personalization wizard
+├── components/
+│   ├── AdventureGuide.jsx        the field-guide view of the adventure
+│   ├── commitment/               CommitmentScreen, RunawayButton, runawayMath (pure geometry)
+│   ├── closing/                  ClosingScene (wrapper, fallback), OutdoorScene (Three.js, lazy),
+│   │                             sceneBuilders (procedural meshes), sceneTimeline (pure choreography)
+│   └── phone-away/               PhoneAwayMode, MissionCard, MissionTimer, timerModel (pure),
+│                                 AdventureComplete
+└── hooks/usePrefersReducedMotion.js
+```
+
+## Journey state machine
+
+```
+ADVENTURE ──start──► COMMITMENT ──yes──► CLOSING ──continue──► INTRO ──begin──► MISSION ──last──► COMPLETE ──► HOME
+    ▲                    │                                       │                 │
+    └────── back ────────┘                       └── exit ───────┴────── exit ─────┘ (progress kept)
+```
+
+Each screen accepts only its own actions; anything else is ignored, so impossible combinations cannot occur. The generated adventure object is held in this state for the whole journey; **no screen after generation calls the backend or Gemma**.
+
+## Lazy loading
+
+`ClosingScene` is loaded with `React.lazy` only when the user says yes, and `OutdoorScene` (which imports `three`) is loaded from inside it only if WebGL is available. Nothing 3D is downloaded for users who never reach the closing scene. The server is unchanged in Stage 3 apart from one added safety line in the prompt.

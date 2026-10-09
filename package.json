@@ -5,14 +5,16 @@
   "license": "MIT",
   "type": "module",
   "private": true,
-  "engines": { "node": ">=20.12" },
+  "engines": {
+    "node": ">=20.12"
+  },
   "scripts": {
     "install:all": "npm install && npm --prefix client install",
     "dev:server": "node --watch server/index.js",
     "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client run build",
     "start": "node server/index.js",
-    "test": "node --test \"server/**/*.test.js\""
+    "test": "node --test \"server/**/*.test.js\" \"client/src/**/*.test.js\""
   },
   "dependencies": {
     "express": "^4.21.0"
