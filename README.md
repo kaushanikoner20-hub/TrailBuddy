@@ -57,9 +57,6 @@ Response shape (the content comes from Gemma and varies):
   }
 }
 ```
-#Demo
-
-
 ## Open AI approach
 
 - [Gemma 3](https://ai.google.dev/gemma) is an open-weight model.
