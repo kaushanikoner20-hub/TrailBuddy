@@ -20,6 +20,10 @@ TrailBuddy is for people who want a gentle prompt to notice their surroundings, 
 
 No screenshots are checked into the repository yet. See [the capture checklist in the demo guide](docs/DEMO.md#screenshot-checklist) for authentic screens to capture from the running app.
 
+## Demo
+
+[Watch the TrailBuddy screen recording](assests/Screen%20Recording%202026-10-09%20204549.mp4) (MP4, stored with Git LFS).
+
 ## What it does now
 
 **Personalized adventure**
