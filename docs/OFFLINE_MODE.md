@@ -4,7 +4,7 @@
 
 Adventure generation still needs the configured Express backend and local Ollama/Gemma. Once generated, an adventure can be saved and prepared in the browser. The production service worker precaches the application shell and every built client asset, including the lazy Three.js scene chunk. Phone Away Mode reads the saved adventure and stores mission progress locally; it makes no AI or adventure API request.
 
-## Intended future flow
+## Prepared offline journey
 
 ```
 LOCAL GEMMA + OLLAMA → GENERATE ADVENTURE → SAVE ADVENTURE LOCALLY
@@ -12,7 +12,7 @@ LOCAL GEMMA + OLLAMA → GENERATE ADVENTURE → SAVE ADVENTURE LOCALLY
 → PHONE AWAY MODE → MISSIONS + LOCAL PROGRESS → OPTIONAL LOCAL REFLECTION
 ```
 
-After generation, use **PREPARE MY ADVENTURE**. Readiness checks the saved adventure and mission data, the active service worker's build asset list, and each required response in that build's cache. A failed check reports missing items and can be retried. Preparation does not turn off the network and does not check your physical location.
+After generation, use **PREPARE MY ADVENTURE**. Readiness checks the saved adventure and mission data, the active service worker's build asset list, and each required response in that build's cache. A failed check reports missing items and can be retried. The production worker precaches the assets during installation; this button verifies the cache rather than downloading files. Preparation does not turn off the network and does not check your physical location.
 
 ## Cache behavior
 

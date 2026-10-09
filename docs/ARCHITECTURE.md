@@ -2,7 +2,7 @@
 
 ## Components
 
-**React (client/)** – A Vite + React single page. A one-question-per-screen wizard collects mood, time, activity, and difficulty and calls `POST /api/adventure`. The result then moves through the Stage 3 journey (below). Three.js is the only 3D dependency and is loaded lazily.
+**React (client/)** – A Vite + React single page. A one-question-per-screen wizard collects mood, time, activity, and difficulty and calls `POST /api/adventure`. The result moves through preparation, commitment, closing, and Phone Away Mode. Three.js is the only 3D dependency and is loaded lazily.
 
 **Node / Express (server/)** – A thin HTTP API.
 - `routes/adventure.js` is a thin Express route; `routes/adventureHandler.js` validates input and maps errors to HTTP responses.
@@ -22,7 +22,7 @@
 
 ```
 Browser (React)
-   │  POST /api/adventure {activity, duration, difficulty}
+   │  POST /api/adventure {mood, activity, duration, difficulty}
    ▼
 Express route ── validate ──► 400 on bad input
    │
@@ -42,16 +42,19 @@ parse + validate (retry once) ──► 502 if still unusable
 { success, adventure, model } ──► React field guide
 ```
 
-In development, Vite proxies `/api` to the backend on port 3001. When the client is built, Express serves `client/dist` itself.
+In development, Vite proxies `/api` to the backend on port 3001. When the client is built, Express serves `client/dist` itself, including the PWA manifest and service worker.
 
-## Client structure (Stage 3)
+## Client structure
 
 ```
 client/src/
 ├── App.jsx                       screen switch driven by the journey reducer
 ├── state/
 │   ├── journey.js                the state machine (one `screen` value, allowed actions per screen)
-│   └── storage.js                localStorage: current session + optional reflections
+│   └── storage.js                localStorage: validated session + optional reflections
+├── services/
+│   ├── api.js                    request/response validation for local adventure generation
+│   └── offline.js                service-worker registration and cache readiness checks
 ├── pages/Home.jsx                the personalization wizard
 ├── components/
 │   ├── AdventureGuide.jsx        the field-guide view of the adventure
@@ -66,7 +69,7 @@ client/src/
 ## Journey state machine
 
 ```
-ADVENTURE ──start──► COMMITMENT ──yes──► CLOSING ──continue──► INTRO ──begin──► MISSION ──last──► COMPLETE ──► HOME
+ADVENTURE (prepare) ──start──► COMMITMENT ──yes──► CLOSING ──continue──► INTRO ──begin──► MISSION ──last──► COMPLETE ──► HOME
     ▲                    │                                       │                 │
     └────── back ────────┘                       └── exit ───────┴────── exit ─────┘ (progress kept)
 ```
@@ -75,7 +78,7 @@ Each screen accepts only its own actions; anything else is ignored, so impossibl
 
 ## Lazy loading
 
-`ClosingScene` is loaded with `React.lazy` only when the user says yes, and `OutdoorScene` (which imports `three`) is loaded from inside it only if WebGL is available. Nothing 3D is downloaded for users who never reach the closing scene. The server is unchanged in Stage 3 apart from one added safety line in the prompt.
+`ClosingScene` is loaded with `React.lazy` only when the user says yes, and `OutdoorScene` (which imports `three`) is loaded from inside it only if WebGL is available. Production builds include and precache these lazy chunks so the prepared scene can load offline. The scene uses procedural geometry and a generated sky texture rather than external assets.
 
 ## Stage 4 offline support
 

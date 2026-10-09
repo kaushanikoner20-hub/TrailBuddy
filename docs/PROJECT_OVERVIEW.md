@@ -24,8 +24,9 @@ TrailBuddy is a small open-source project for the Hacktoberfest 2026 "Touch Gras
 
 - **Stage 1:** foundation and local Gemma connection (done).
 - **Stage 2:** personalized, structured, sensory adventures.
-- **Stage 3 (current):** the "Are you going out?" commitment screen, the 3D closing scene, and Phone Away Mode.
-- **Stage 4 (planned, not built):** offline/PWA support.
+- **Stage 3:** the "Are you going out?" commitment screen, the 3D closing scene, and Phone Away Mode.
+- **Stage 4:** PWA caching, offline readiness, and local persistence for a prepared adventure.
+- **Stage 5 (final polish):** response validation, reproducible setup guidance, regression checks, and demo/submission notes.
 
 ## The exit experience (Stage 3)
 
@@ -35,3 +36,7 @@ TrailBuddy is a small open-source project for the Hacktoberfest 2026 "Touch Gras
 - **The bird** in the closing scene leaves the screen on purpose. The bird doesn't stay inside the app. Neither should you.
 - **Phone Away Mode** is deliberately small: one mission at a time, large text, a dark low-glare screen, and almost nothing to tap. The point is to read one instruction, put the phone away, and come back briefly.
 - TrailBuddy never claims you actually went outside or that your screen time went down. It can't know.
+
+## Prepared offline experience (Stage 4)
+
+After the adventure has been generated, the production service worker caches the application shell and local assets. The adventure, mission progress, and timer are stored in this browser so the prepared journey can continue without internet. Generating a new adventure still requires the configured backend and Ollama/Gemma.

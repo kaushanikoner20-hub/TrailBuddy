@@ -3,7 +3,7 @@
 ## Generation
 - Generation uses a local Ollama server. TrailBuddy sends your choices (mood, time, activity, difficulty) inside a prompt to `OLLAMA_BASE_URL` (default `http://localhost:11434`) and nowhere else.
 - There is no login, account, analytics, or tracking in the code.
-- The server does not write adventures or inputs to disk. It logs only startup information and unexpected errors.
+- The server does not write adventures or inputs to disk. Startup logs show the model and Ollama endpoint host (without URL credentials or query parameters); unexpected errors are logged for diagnosis.
 - If you change `OLLAMA_BASE_URL` to a remote machine, your prompts go there. That is your choice and your responsibility.
 
 ## Stored in your browser

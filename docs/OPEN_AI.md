@@ -30,8 +30,8 @@ Gemma is not a chatbot here. It is the **Outdoor Experience Designer**: it turns
 
 ## What local inference means
 
-- **Local inference.** The model runs on your hardware via Ollama. TrailBuddy sends requests to `localhost`.
-- **Privacy.** Your mood and preferences are not sent to an AI provider by TrailBuddy. (Downloading Ollama and the model uses the internet once.)
+- **Local inference.** By default, the model runs on your hardware via Ollama at `http://localhost:11434`.
+- **Privacy.** With the default configuration, prompts stay on your computer and are not sent to a cloud AI provider. If you set `OLLAMA_BASE_URL` to a remote server, prompts go to that server. (Downloading Ollama and the model uses the internet.)
 - **Model control.** Gemma 3 is open-weight: you choose the size and run it yourself. "Open-weight" means the weights are available under Google's Gemma license terms; it is not the same as an OSI-approved open-source license.
 - **No mandatory cloud AI API.** No keys, accounts, or per-request billing.
 - **Changing the model later.** The model name comes from `OLLAMA_MODEL` and all model calls live in `server/services/ollama.js`. Other Gemma 3 sizes should work by changing that variable. The project intentionally targets Gemma 3.

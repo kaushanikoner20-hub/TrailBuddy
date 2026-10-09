@@ -3,7 +3,7 @@
 This file records only what has actually been run. Unchecked items have **not** been verified.
 
 ## Automated tests (`npm test`)
-Stage 4 run in the current checkout: 66 tests, 66 passed. This covers server validation/generation logic and client state, persistence, timer, scene timeline, and runaway geometry logic; it does not call a real Gemma model.
+Stage 5 run in the current checkout: 70 tests passed. Tests cover client API response validation, preference-to-prompt mapping, server validation/generation logic, client state, persistence, timer, scene timeline, and runaway geometry. The automated suite does not call a real Gemma model; a separate local smoke test is recorded below.
 
 Stage 3 additions (28 client-side tests, pure logic only):
 - [x] Journey state machine (`state/journey.test.js`): happy path, ignored out-of-place actions, back from the commitment screen keeps the same adventure, exit keeps progress, restart-missions, finish.
@@ -42,6 +42,15 @@ These tests also found and fixed one real bug: the closing scene's `.closing` CS
 - [ ] Reload with browser offline mode and complete the entire outdoor journey.
 - [ ] Real Gemma/Ollama generation followed by network-disconnected mission completion; unavailable in this verification environment.
 - [ ] Browser network inspection proving no `/api/adventure` calls after generation; source flow uses only the in-memory/localStorage adventure after generation, but browser Network tooling was unavailable.
+
+## Stage 5 checks
+
+- [x] Client response validation: valid preference payload passes; incomplete success response is rejected; backend model errors stay actionable.
+- [x] Real local generation smoke test through Express and configured Ollama/Gemma: HTTP 200, `gemma3:4b`, three missions returned for a generic curious 15-minute walk request.
+- [x] Production preview served every URL in the generated service-worker asset list with HTTP 200.
+- [ ] Full browser visual/responsive/accessibility pass and screenshot capture; the Windows browser automation runtime failed to initialize in this environment.
+
+The project owner reports manually completing the prepared adventure offline from start to finish in their browser. This agent did not repeat that browser journey during Stage 5; the automated suite does not simulate service-worker lifecycle or physical disconnection.
 
 ## NOT verified: rendered 3D scene
 The production build contains the Three.js chunk but there was no graphical browser/WebGL verification surface available, so:

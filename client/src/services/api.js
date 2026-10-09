@@ -1,3 +1,5 @@
+import { isAdventure } from '../state/storage.js';
+
 export class ApiError extends Error {
   constructor(message, code) {
     super(message);
@@ -28,7 +30,7 @@ export async function requestAdventure({ mood, duration, activity, difficulty })
     const detail = data?.details?.length ? ` ${data.details.join('. ')}.` : '';
     throw new ApiError(`${data?.error ?? 'Something went wrong.'}${detail}`, data?.code ?? 'UNKNOWN');
   }
-  if (!data.adventure || !Array.isArray(data.adventure.missions)) {
+  if (!isAdventure(data.adventure)) {
     throw new ApiError('The server sent an unreadable adventure. Try again.', 'MALFORMED_RESPONSE');
   }
   return { adventure: data.adventure, model: data.model };
