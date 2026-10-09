@@ -49,6 +49,7 @@ function PauseOverlay({ onResume, onExit }) {
 export default function PhoneAwayMode({
   view,
   adventure,
+  adventureId,
   missionIndex,
   resuming,
   onBegin,
@@ -89,6 +90,7 @@ export default function PhoneAwayMode({
         <MissionCard
           key={mission.id}
           mission={mission}
+          adventureId={adventureId}
           index={missionIndex}
           total={total}
           paused={paused}

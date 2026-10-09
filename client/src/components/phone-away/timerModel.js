@@ -29,3 +29,25 @@ export function formatClock(ms) {
   const seconds = String(totalSeconds % 60).padStart(2, '0');
   return `${minutes}:${seconds}`;
 }
+
+export function readStoredTimer(storage, key, durationMs) {
+  try {
+    const value = JSON.parse(storage?.getItem(key));
+    if (value?.v !== 1 || value.timer?.durationMs !== durationMs ||
+      !['idle', 'running', 'paused', 'finished'].includes(value.status) ||
+      !Number.isFinite(value.timer.elapsedMs) || value.timer.elapsedMs < 0 || value.timer.elapsedMs > durationMs ||
+      (value.timer.runningSince != null && !Number.isFinite(value.timer.runningSince))) return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+export function writeStoredTimer(storage, key, status, timer) {
+  try {
+    storage?.setItem(key, JSON.stringify({ v: 1, status, timer }));
+    return Boolean(storage);
+  } catch {
+    return false;
+  }
+}

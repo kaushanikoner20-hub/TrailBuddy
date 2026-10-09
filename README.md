@@ -6,7 +6,7 @@
 
 TrailBuddy is a local-first outdoor adventure generator. You tell it how you want to feel and how much time you have. A Gemma 3 model running on your own computer through Ollama designs a short, sensory, phone-free adventure. You read it once, then go outside. The AI doesn't need to follow you.
 
-> **Current stage: Stage 3 — The Exit Experience & Phone Away Mode.** Personalized Gemma adventures (Stage 2) now lead into a commitment screen, a 3D closing scene, and a minimal Phone Away Mode. Offline/PWA support is **not built yet**. See [Current limitations](#current-limitations) and [docs/TESTING.md](docs/TESTING.md) for exactly what has been verified.
+> **Current stage: Stage 4 — Offline-first outdoor experience.** After local Gemma generation, prepare the adventure to cache the production app shell and all built assets. The saved adventure, mission progress, and timer can then be restored locally.
 
 ## Why TrailBuddy?
 
@@ -24,6 +24,7 @@ People often want to spend time outdoors but stay tied to their screens. TrailBu
 2. The **NO, I'M NOT** button playfully hops away from a mouse a few times, then settles. It never reacts to touch or keyboard, respects reduced motion, and can always be clicked.
 3. **YES, I'M GOING** opens a 3D closing scene (Three.js): a bird takes off from a branch and flies away while *LET'S MEET OUTSIDE NOW* appears. There is a skip button and a plain fallback if WebGL is unavailable.
 4. **Phone Away Mode** shows the real Gemma-generated missions one at a time, with an optional timer, pause, and exit. A calm completion screen offers an optional reflection saved only in your browser.
+5. **Prepare for offline use** checks the saved adventure and actual service-worker cache before the user heads out. The service worker is only available in production builds, and adventure generation still needs the configured Express backend and Ollama/Gemma.
 
 > We wanted the final interaction with TrailBuddy to feel like an exit, not another screen to consume.
 
@@ -90,8 +91,8 @@ Open <http://localhost:5173>. More detail in [docs/SETUP.md](docs/SETUP.md). Run
 
 ## Current limitations
 
-- **Offline outdoor mode is not implemented** (planned for Stage 4). Generating an adventure needs Ollama running locally. After generation, Phone Away Mode needs no AI, but the app is not a PWA: the page, scripts, and the lazily loaded 3D scene still come from the dev/web server, so a reload with no server will not work.
-- **Only the current adventure and your progress are kept** (in this browser's `localStorage`) so a reload doesn't lose them. There is no history, account, or sync.
+- **Offline generation is not provided.** Generating an adventure needs the configured backend and Ollama running locally. The production service worker caches the shell and built assets; use the readiness check before disconnecting.
+- **Only the current adventure and its progress are kept** in this browser's `localStorage`. Browser storage is not encrypted and may be cleared or evicted.
 - **The 3D closing scene is procedural** (simple low-poly trees and a stylized bird, no imported models). It needs WebGL; without it, or if it fails to load, a plain non-3D backdrop with the same text is shown instead.
 - **Timers and completion are self-reported.** The timer measures timer time only. TrailBuddy cannot know whether you were outside, and makes no claim about screen time.
 - Gemma is a small local model. Adventures are checked for structure and timing, **not** for real-world safety or quality. Use common sense outdoors.

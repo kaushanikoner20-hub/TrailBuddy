@@ -1,0 +1,12 @@
+{
+  "name": "TrailBuddy",
+  "short_name": "TrailBuddy",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#e9efe4",
+  "theme_color": "#2e5e3e",
+  "icons": [
+    { "src": "/icons/trailbuddy.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
