@@ -33,17 +33,19 @@ export function isAdventure(value) {
   );
 }
 
-/** Saves the session while an adventure is in play; clears it on home and after completion. */
+/** Saves the session throughout the journey; clears it only after an explicit return home. */
 export function saveSession(state, store = defaultStore()) {
   if (!store) return;
   try {
-    const active = state.adventure && state.screen !== SCREENS.HOME && state.screen !== SCREENS.COMPLETE;
+    const active = state.adventure && state.screen !== SCREENS.HOME;
     if (!active) {
       store.removeItem(SESSION_KEY);
       return;
     }
     const { adventure, model, missionIndex, completedIds, skippedIds } = state;
-    store.setItem(SESSION_KEY, JSON.stringify({ v: 1, adventure, model, missionIndex, completedIds, skippedIds }));
+    store.setItem(SESSION_KEY, JSON.stringify({ v: 2, adventureId: state.adventureId, createdAt: state.createdAt,
+      adventure, model, missionIndex, completedIds, skippedIds, prepared: state.prepared,
+      workflowState: state.screen, reflection: state.reflection ?? '' }));
   } catch {
     // Storage full or blocked: the app still works, it just won't survive a reload.
   }
@@ -54,7 +56,7 @@ export function loadSession(store = defaultStore()) {
   if (!store) return null;
   try {
     const saved = JSON.parse(store.getItem(SESSION_KEY));
-    if (!saved || saved.v !== 1 || !isAdventure(saved.adventure)) return null;
+    if (!saved || ![1, 2].includes(saved.v) || !isAdventure(saved.adventure)) return null;
 
     const ids = saved.adventure.missions.map((m) => m.id);
     const validIds = (list) => Array.isArray(list) && list.every((id) => ids.includes(id));
@@ -66,11 +68,19 @@ export function loadSession(store = defaultStore()) {
       screen: SCREENS.ADVENTURE,
       adventure: saved.adventure,
       model: typeof saved.model === 'string' ? saved.model : null,
+      adventureId: typeof saved.adventureId === 'string' ? saved.adventureId : `restored-${saved.createdAt ?? 'adventure'}`,
+      createdAt: typeof saved.createdAt === 'string' && !Number.isNaN(Date.parse(saved.createdAt)) ? saved.createdAt : new Date(0).toISOString(),
+      prepared: saved.prepared === true,
+      reflection: typeof saved.reflection === 'string' ? saved.reflection.slice(0, 2000) : '',
       missionIndex: saved.missionIndex,
       completedIds: saved.completedIds,
       skippedIds: saved.skippedIds,
     };
-    return hasProgress(state) ? { ...state, screen: SCREENS.INTRO } : state;
+    if (saved.v === 1) return hasProgress(state) ? { ...state, screen: SCREENS.INTRO } : state;
+    if (saved.workflowState === SCREENS.COMPLETE) return { ...state, screen: SCREENS.COMPLETE };
+    if (hasProgress(state)) return { ...state, screen: SCREENS.INTRO };
+    const resumable = [SCREENS.ADVENTURE, SCREENS.COMMITMENT, SCREENS.CLOSING, SCREENS.INTRO, SCREENS.MISSION, SCREENS.COMPLETE];
+    return resumable.includes(saved.workflowState) ? { ...state, screen: saved.workflowState } : state;
   } catch {
     return null;
   }

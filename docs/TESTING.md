@@ -3,7 +3,7 @@
 This file records only what has actually been run. Unchecked items have **not** been verified.
 
 ## Automated tests (`npm test`)
-Result in a sandbox without Ollama or WebGL: 63 tests, 63 passed (Node 22). The count includes the 35 server tests from Stage 2.
+Stage 4 run in the current checkout: 66 tests, 66 passed. This covers server validation/generation logic and client state, persistence, timer, scene timeline, and runaway geometry logic; it does not call a real Gemma model.
 
 Stage 3 additions (28 client-side tests, pure logic only):
 - [x] Journey state machine (`state/journey.test.js`): happy path, ignored out-of-place actions, back from the commitment screen keeps the same adventure, exit keeps progress, restart-missions, finish.
@@ -31,8 +31,20 @@ The Gemma API was **stubbed** for these tests (the app itself contains no fake r
 
 These tests also found and fixed one real bug: the closing scene's `.closing` CSS class collided with the adventure guide's closing paragraph and blocked the Start button (scene class renamed to `.outro`).
 
-## NOT verified: the 3D scene itself
-The sandbox has no Three.js library and no way to render WebGL, so:
+## Stage 4 verification
+
+- [x] `npm run build --prefix client`: Vite production build succeeded; emitted a manifest, versioned service worker, main bundles, lazy closing-scene chunk, and lazy Three.js scene chunk.
+- [x] Generated worker asset list includes the app shell, manifest, SVG icon, main JS/CSS, closing-scene JS/CSS, and `OutdoorScene` chunk.
+- [x] Local production preview returned HTTP 200 for `/`, `/manifest.webmanifest`, `/sw.js`, the icon, main JS, and the lazy Three.js chunk.
+- [x] Timer persistence unit coverage: running timestamps restore elapsed time; paused timers remain frozen; malformed and unavailable storage fail safely.
+- [x] Session storage coverage: prepared metadata and workflow restore; completion remains restorable until explicit return home.
+- [ ] Browser service-worker registration and cache inspection.
+- [ ] Reload with browser offline mode and complete the entire outdoor journey.
+- [ ] Real Gemma/Ollama generation followed by network-disconnected mission completion; unavailable in this verification environment.
+- [ ] Browser network inspection proving no `/api/adventure` calls after generation; source flow uses only the in-memory/localStorage adventure after generation, but browser Network tooling was unavailable.
+
+## NOT verified: rendered 3D scene
+The production build contains the Three.js chunk but there was no graphical browser/WebGL verification surface available, so:
 - [ ] The Three.js scene renders (trees, ground, sky, lighting)
 - [ ] The bird is visible on the branch, takes off, flaps, and flies away
 - [ ] The headline is readable over the real 3D scene on desktop and mobile
@@ -40,10 +52,11 @@ The sandbox has no Three.js library and no way to render WebGL, so:
 - [ ] WebGL resources are released when leaving the scene
 - [ ] Context-loss handling
 
-The scene code is written, but its rendering has only been reasoned about, not seen. Its timing and layout logic is unit tested; the Three.js calls are not.
+Its timing and layout logic is unit tested; actual rendering, performance, and WebGL context handling remain unverified.
 
 ## Still to do on a real machine
-- [ ] `npm run install:all` and `npm run dev:client` under Vite with `three` installed
+- [ ] Verify the service worker and readiness panel in a supported browser
+- [ ] Complete the offline journey in browser DevTools Offline mode
 - [ ] Full flow with real Gemma: generate, commitment, closing scene, Phone Away Mode, completion
 - [ ] Real touch device and real screen reader
 - [ ] Gemma's missions respect the new "closed eyes only while stationary" prompt line (spot-check several adventures)

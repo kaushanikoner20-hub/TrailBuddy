@@ -76,3 +76,9 @@ Each screen accepts only its own actions; anything else is ignored, so impossibl
 ## Lazy loading
 
 `ClosingScene` is loaded with `React.lazy` only when the user says yes, and `OutdoorScene` (which imports `three`) is loaded from inside it only if WebGL is available. Nothing 3D is downloaded for users who never reach the closing scene. The server is unchanged in Stage 3 apart from one added safety line in the prompt.
+
+## Stage 4 offline support
+
+The Vite build plugin emits a versioned service worker whose install step caches the root shell, manifest, icon, and all emitted bundle files. Because the 3D component and Three.js are emitted as build chunks, these are included even though they load lazily. Navigation is network-first with cached `/` as fallback; same-origin built assets are cache-first. `/api/` is excluded. The browser cache is checked by the Prepare screen against the active worker's real asset list.
+
+Adventure and workflow state stay in `localStorage`; a timestamp-based optional timer is stored per local adventure and mission. The production offline journey uses this saved object and does not call the generation endpoint. The app cannot make the backend or Ollama available offline for generating another adventure. Browser storage can be cleared or evicted and is not encrypted.

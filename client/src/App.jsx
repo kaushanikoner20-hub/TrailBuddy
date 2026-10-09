@@ -6,6 +6,7 @@ import PhoneAwayMode from './components/phone-away/PhoneAwayMode.jsx';
 import AdventureComplete from './components/phone-away/AdventureComplete.jsx';
 import { SCREENS, hasProgress, initialJourney, journeyReducer } from './state/journey.js';
 import { loadSession, saveSession } from './state/storage.js';
+import { registerOfflineWorker } from './services/offline.js';
 
 // The closing scene (and three.js with it) is only downloaded when the user gets there.
 const ClosingScene = lazy(() => import('./components/closing/ClosingScene.jsx'));
@@ -29,6 +30,8 @@ export default function App() {
     saveSession(journey);
   }, [journey]);
 
+  useEffect(() => { registerOfflineWorker(); }, []);
+
   switch (screen) {
     case SCREENS.ADVENTURE:
       return (
@@ -36,6 +39,8 @@ export default function App() {
           <AdventureGuide
             adventure={adventure}
             model={model}
+            prepared={journey.prepared}
+            onPrepared={() => dispatch({ type: 'prepared' })}
             onStart={() => dispatch({ type: 'open-commitment' })}
             onRestart={() => dispatch({ type: 'restart' })}
           />
@@ -63,6 +68,7 @@ export default function App() {
         <PhoneAwayMode
           view={screen === SCREENS.INTRO ? 'intro' : 'mission'}
           adventure={adventure}
+          adventureId={journey.adventureId}
           missionIndex={missionIndex}
           resuming={hasProgress(journey)}
           onBegin={() => dispatch({ type: 'begin' })}

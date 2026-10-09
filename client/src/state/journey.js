@@ -15,6 +15,9 @@ export const initialJourney = {
   screen: SCREENS.HOME,
   adventure: null,
   model: null,
+  adventureId: null,
+  createdAt: null,
+  prepared: false,
   missionIndex: 0,
   completedIds: [],
   skippedIds: [],
@@ -23,7 +26,7 @@ export const initialJourney = {
 // Which actions are allowed on which screen. Anything else is ignored.
 const ALLOWED = {
   [SCREENS.HOME]: ['generated'],
-  [SCREENS.ADVENTURE]: ['restart', 'open-commitment'],
+  [SCREENS.ADVENTURE]: ['restart', 'open-commitment', 'prepared'],
   [SCREENS.COMMITMENT]: ['back-to-adventure', 'confirm-going'],
   [SCREENS.CLOSING]: ['closing-done'],
   [SCREENS.INTRO]: ['begin', 'restart-missions', 'exit-phone-away'],
@@ -47,12 +50,15 @@ export function journeyReducer(state, action) {
 
   switch (action.type) {
     case 'generated':
-      return { ...initialJourney, screen: SCREENS.ADVENTURE, adventure: action.adventure, model: action.model };
+      return { ...initialJourney, screen: SCREENS.ADVENTURE, adventure: action.adventure, model: action.model,
+        adventureId: globalThis.crypto?.randomUUID?.() ?? `adventure-${Date.now()}`, createdAt: new Date().toISOString() };
     case 'restart':
     case 'finish':
       return initialJourney;
     case 'open-commitment':
       return { ...state, screen: SCREENS.COMMITMENT };
+    case 'prepared':
+      return { ...state, prepared: true };
     case 'back-to-adventure':
     case 'exit-phone-away':
       return { ...state, screen: SCREENS.ADVENTURE };

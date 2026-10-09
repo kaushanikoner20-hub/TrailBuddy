@@ -43,14 +43,26 @@ test('saved progress is restored to the Phone Away intro so the user can resume'
   assert.deepEqual(restored.completedIds, [1]);
 });
 
-test('home and completion clear the saved session', () => {
+test('completion remains restorable and an explicit return home clears the saved session', () => {
   const store = fakeStore();
   saveSession(active, store);
   saveSession(initialJourney, store);
   assert.equal(loadSession(store), null);
   saveSession(active, store);
   saveSession({ ...active, screen: SCREENS.COMPLETE }, store);
+  assert.equal(loadSession(store).screen, SCREENS.COMPLETE);
+  saveSession(initialJourney, store);
   assert.equal(loadSession(store), null);
+});
+
+test('prepared state and workflow state survive a refresh', () => {
+  const store = fakeStore();
+  saveSession({ ...active, adventureId: 'local-1', createdAt: '2026-10-09T10:00:00.000Z', prepared: true, screen: SCREENS.COMMITMENT }, store);
+  const restored = loadSession(store);
+  assert.equal(restored.adventureId, 'local-1');
+  assert.equal(restored.createdAt, '2026-10-09T10:00:00.000Z');
+  assert.equal(restored.prepared, true);
+  assert.equal(restored.screen, SCREENS.COMMITMENT);
 });
 
 test('corrupt or tampered data is ignored', () => {

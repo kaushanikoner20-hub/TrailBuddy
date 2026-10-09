@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import MissionTimer from './MissionTimer.jsx';
 import { MISSION_ICONS } from '../../options.js';
 
-export default function MissionCard({ mission, index, total, paused, onDone, onSkip }) {
+export default function MissionCard({ mission, adventureId, index, total, paused, onDone, onSkip }) {
   const headingRef = useRef(null);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function MissionCard({ mission, index, total, paused, onDone, onS
       <p className="mission-instruction">{mission.instruction}</p>
 
       <button type="button" className="away-primary" onClick={onDone}>DONE</button>
-      <MissionTimer minutes={mission.duration} paused={paused} />
+      <MissionTimer minutes={mission.duration} missionId={`${adventureId}:${mission.id}`} paused={paused} />
       <button type="button" className="away-link" onClick={onSkip}>Skip this one</button>
 
       <p className="away-safety">Only do this somewhere safe. Skip anything that doesn&apos;t feel right.</p>

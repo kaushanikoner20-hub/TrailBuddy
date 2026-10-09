@@ -1,6 +1,7 @@
 import { DIFFICULTIES, MISSION_ICONS, MOODS, labelFor } from '../options.js';
+import OfflinePreparation from './OfflinePreparation.jsx';
 
-export default function AdventureGuide({ adventure, model, onStart, onRestart }) {
+export default function AdventureGuide({ adventure, model, prepared, onPrepared, onStart, onRestart }) {
   return (
     <article className="guide">
       <header className="guide-header">
@@ -29,9 +30,12 @@ export default function AdventureGuide({ adventure, model, onStart, onRestart })
       <p className="closing">{adventure.closing}</p>
       {adventure.phone_free && <p className="phone-free">🔒 Designed for phone-free time</p>}
 
+      <OfflinePreparation prepared={prepared} onPrepared={onPrepared} />
+
       <button type="button" className="primary" onClick={onStart}>
         Start my adventure
       </button>
+      {!prepared && <p className="offline-note">Check readiness before heading out if you want to use the app without a connection.</p>}
 
       <button type="button" className="link" onClick={onRestart}>Plan a different one</button>
       <p className="card-meta">Generated locally by {model}</p>
