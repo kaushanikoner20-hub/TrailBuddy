@@ -15,7 +15,8 @@ function fakeStore() {
 
 const adventure = {
   title: 'T', tagline: 't', intro: 'i', closing: 'c', duration: 30,
-  missions: [1, 2].map((id) => ({ id, type: 'hearing', title: 'M', instruction: 'x', duration: 5 })),
+  mood: 'calm', activity: 'walk', difficulty: 'gentle', phone_free: true,
+  missions: [1, 2, 3].map((id) => ({ id, type: 'hearing', title: 'M', instruction: 'x', duration: 5 })),
 };
 const active = { ...initialJourney, screen: SCREENS.ADVENTURE, adventure, model: 'gemma3:4b' };
 
@@ -24,6 +25,8 @@ test('isAdventure accepts a valid adventure and rejects broken ones', () => {
   assert.equal(isAdventure(null), false);
   assert.equal(isAdventure({ ...adventure, missions: [] }), false);
   assert.equal(isAdventure({ ...adventure, missions: [{ id: 1 }] }), false);
+  assert.equal(isAdventure({ ...adventure, mood: 'unknown' }), false);
+  assert.equal(isAdventure({ ...adventure, missions: [adventure.missions[0], adventure.missions[0], adventure.missions[2]] }), false);
 });
 
 test('a saved adventure without progress is restored to the adventure screen', () => {

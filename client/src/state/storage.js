@@ -5,6 +5,10 @@ import { SCREENS, hasProgress } from './journey.js';
 const SESSION_KEY = 'trailbuddy.session.v1';
 const REFLECTIONS_KEY = 'trailbuddy.reflections.v1';
 const MAX_REFLECTIONS = 30;
+const MOODS = ['calm', 'energized', 'clear-head', 'curious', 'creative'];
+const ACTIVITIES = ['walk', 'explore', 'sit-outside', 'observe-nature', 'photography', 'surprise-me'];
+const DIFFICULTIES = ['gentle', 'moderate', 'adventurous'];
+const MISSION_TYPES = ['hearing', 'vision', 'touch', 'memory', 'curiosity', 'movement'];
 
 function defaultStore() {
   try {
@@ -17,19 +21,29 @@ function defaultStore() {
 function isMission(m) {
   return Boolean(
     m && typeof m === 'object' &&
-    Number.isInteger(m.id) && typeof m.type === 'string' &&
-    typeof m.title === 'string' && typeof m.instruction === 'string' &&
+    Number.isInteger(m.id) && m.id > 0 && typeof m.type === 'string' &&
+    MISSION_TYPES.includes(m.type) &&
+    typeof m.title === 'string' && m.title.trim().length > 0 && m.title.trim().length <= 60 &&
+    typeof m.instruction === 'string' && m.instruction.trim().length > 0 && m.instruction.trim().length <= 400 &&
     Number.isInteger(m.duration) && m.duration > 0
   );
 }
 
 export function isAdventure(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const missions = value.missions;
+  const ids = Array.isArray(missions) ? missions.map((mission) => mission?.id) : [];
   return Boolean(
-    value && typeof value === 'object' &&
-    typeof value.title === 'string' && typeof value.tagline === 'string' &&
-    typeof value.intro === 'string' && typeof value.closing === 'string' &&
-    Number.isInteger(value.duration) &&
-    Array.isArray(value.missions) && value.missions.length > 0 && value.missions.every(isMission)
+    typeof value.title === 'string' && value.title.trim().length > 0 && value.title.trim().length <= 80 &&
+    typeof value.tagline === 'string' && value.tagline.trim().length > 0 && value.tagline.trim().length <= 160 &&
+    typeof value.intro === 'string' && value.intro.trim().length > 0 && value.intro.trim().length <= 300 &&
+    typeof value.closing === 'string' && value.closing.trim().length > 0 && value.closing.trim().length <= 300 &&
+    Number.isInteger(value.duration) && value.duration >= 10 && value.duration <= 240 &&
+    MOODS.includes(value.mood) && ACTIVITIES.includes(value.activity) && DIFFICULTIES.includes(value.difficulty) &&
+    Array.isArray(missions) && missions.length >= 3 && missions.length <= 7 && missions.every(isMission) &&
+    new Set(ids).size === ids.length && missions.every((mission) => mission.duration <= value.duration) &&
+    missions.reduce((sum, mission) => sum + mission.duration, 0) >= value.duration * 0.5 &&
+    missions.reduce((sum, mission) => sum + mission.duration, 0) <= value.duration * 1.1
   );
 }
 

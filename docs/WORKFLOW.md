@@ -27,10 +27,12 @@
 
 Internal validation details are logged on the server, not sent to the browser.
 
-## After the adventure: the Stage 3 journey
+## After generation: prepare, then leave
 
 ```
 Adventure generated (Stage 2, Gemma)
+ ↓
+PREPARE MY ADVENTURE (production cache + local data check)
  ↓
 START MY ADVENTURE
  ↓
@@ -51,6 +53,6 @@ WELCOME BACK 🌿 (optional reflection) → home
 
 **The closing scene.** About 7 seconds: *arrival* (the bird sits on a branch), *takeoff* (wings unfold and flap, the bird leaves the branch), *message* (the headline fades in as it flies off), *settled*. "Skip animation" jumps to the end; "Replay" runs it again. There is no auto-advance: you continue when you're ready.
 
-**The optional timer.** It starts only when you press its button. Remaining time is computed from timestamps, so a suspended mobile browser can't make it drift, and pausing, resuming, and the pause overlay all freeze it correctly. When it ends it only says "Timer finished": it never completes the mission. Timer time is not evidence of time spent outside.
+**The optional timer.** It starts only when you press its button. Its state is saved per adventure and mission. Remaining time is computed from timestamps, so an active timer includes time while a page is suspended; pausing freezes elapsed time. When it ends it only says "Timer finished": it never completes the mission. Timer time is not evidence of time spent outside.
 
-**What is saved, and where.** The current adventure and your mission progress are kept in this browser's `localStorage` so a reload doesn't lose them; this is cleared when you finish or go home. A reflection is saved only if you press "Save in this browser". See [PRIVACY.md](PRIVACY.md).
+**What is saved, and where.** The current adventure and mission progress are kept in this browser's `localStorage` so a reload doesn't lose them. The session remains saved through completion and is cleared when you explicitly return home. A reflection is saved only if you press "Save in this browser". See [PRIVACY.md](PRIVACY.md).
